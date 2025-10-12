@@ -22,7 +22,7 @@ This project is a Two-Factor Authentication web application featuring a distinct
 - Routing: vue-router (v4)
 - HTTP Client: axios
 - Build Tool: Vite
-- Styling: Tailwind CSS (optional, for component styling)
+
 
 ## Database Setup
 
