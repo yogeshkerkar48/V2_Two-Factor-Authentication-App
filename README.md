@@ -50,7 +50,7 @@ Create a `.env` file in the project root (this file must NOT be committed — ad
 DB_HOST=localhost
 DB_USER=twofa_user
 DB_PASSWORD=strong_password
-DB_NAME=twofa_app
+DB_NAME=database
 SECRET_KEY=a_long_random_secret_for_sessions_or_signing
 ```
 
@@ -135,13 +135,13 @@ my-2fa-app/
 2. Configure `.env` with MySQL credentials.
 3. Run the backend:
    ```bash
-   uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+   uvicorn app:app --host localhost --port 8000 --reload
    ```
 
 ### Frontend Setup
 1. Navigate to `frontend/`:
    ```bash
-   cd my-2fa-app/frontend
+   cd version2/frontend
    ```
 2. Install Node.js dependencies:
    ```bash
@@ -164,5 +164,5 @@ my-2fa-app/
 - Test the full flow in the browser at `http://localhost:8080`.
 
 ## Use of AI Tools
-- CHATGPT
-- GROK
+- [GROK](https://grok.com/)
+- [CHATGPT](https://chatgpt.com)
