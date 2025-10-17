@@ -1,6 +1,8 @@
+Docker hub cantain backend image and frontend image for 2FA Application
+
 Make sure your database is started successfully 
 
- [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.43'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+[Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.43'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
 
 then only backend and frontend works because i have give depends on condition for both backend and frontend.
 
