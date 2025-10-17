@@ -13,7 +13,7 @@ services:
     
 
   backend:
-    image: username/version2autheticator-backend:latest    
+    image: yogesh201/version2autheticator-backend:latest    
     ports:
       - "8000:8000"
     environment:
@@ -26,7 +26,7 @@ services:
       - db
 
   frontend:
-    image: username/version2autheticator-frontend:latest
+    image: yogesh201/version2autheticator-frontend:latest
     ports:
       - "8080:80"
     depends_on:
