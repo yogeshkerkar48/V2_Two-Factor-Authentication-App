@@ -23,7 +23,6 @@ This project is a Two-Factor Authentication web application featuring a distinct
 - HTTP Client: axios
 - Build Tool: Vite
 
-
 ## Database Setup
 
 This authentication app relies on a MySQL database to store user credentials and related data.
@@ -94,7 +93,7 @@ my-2fa-app/
 │   ├── index.html        # Entry HTML file
 │   ├── package.json      # Node.js project configuration
 │   ├── vite.config.js    # Vite configuration
-├── README (1).md         # This file
+├──          
 ```
 
 ## API Design
@@ -153,16 +152,221 @@ my-2fa-app/
    ```
 4. Access the app at `http://localhost:8080`.
 
-## Testing
-- Use `curl` to test backend APIs:
-  - Register: `curl -v -X POST http://localhost:8000/register -d "username=testuser&password=testpass" -c cookies.txt`
-  - Login: `curl -v -X POST http://localhost:8000/login -d "username=testuser&password=testpass" -b cookies.txt -c cookies.txt`
-  - Enable 2FA: `curl -v -b cookies.txt http://localhost:8000/enable_2fa`
-  - Verify 2FA: `curl -v -X POST -b cookies.txt http://localhost:8000/verify_2fa -d "otp=<6-digit-OTP>"`
-  - Dashboard: `curl -v -b cookies.txt http://localhost:8000/dashboard`
-  - Logout: `curl -v -b cookies.txt http://localhost:8000/logout`
 - Test the full flow in the browser at `http://localhost:8080`.
+
+## Dockerization Setup Process for 2FA Application
+
+This document provides a step-by-step guide to set up and dockerize the 2FA (Two-Factor Authentication) application, consisting of a FastAPI backend, a Vue.js frontend, and a MySQL database. The setup uses Docker to containerize the application, ensuring portability and consistency across development, testing, and production environments.
+
+### Overview
+- **Application Components**:
+  - **Backend**: FastAPI-based API for user registration, login, and 2FA management.
+  - **Frontend**: Vue.js application served via Nginx.
+  - **Database**: MySQL 8.0 for storing user data.
+
+- **Software**:
+  - Docker Desktop installed and running.
+  - Python 3.11 (for local backend development).
+  - Node.js and npm (for local frontend development).
+- **Account**:
+  - Docker Hub account (for pushing images).
+
+### Project Structure
+```
+
+└───AUTHETICATORAPP
+    │   docker-compose.yml
+    │   .env
+    │   .dockerignore
+    │
+    └───backend
+    │   │   Dockerfile
+    │   │   app.py
+    │   │   requirements.txt
+    │   │   .dockerignore
+    │
+    └───frontend
+        ├   App.vue       
+        ├   main.js       
+        │   Dockerfile
+        │   package.json
+        │   src/views/   #all 5 view files
+        │   package-lock.json
+        |   src/router/index.js
+        │   .dockerignore
+        │    index.html
+        |    vite.config.js 
+
+```
+
+### Setup Process
+#### 1. Install Docker and Dependencies
+- Download and install Docker Desktop 
+- Enable WSL 2:
+  - Run `wsl --install` in PowerShell (as Administrator).
+  
+- Verify installation:
+  ```CMD
+  docker --version
+
+#### 2. Prepare the Project Directory
+- COPY the project to `VERSION2AUTHETICATOR directory`.
+- Ensure the following files exist:
+  - `docker-compose.yml`: Defines services (db, backend, frontend).
+  - `VERSION2AUTHETICATOR/.env`: Contains environment variables.
+  - `.dockerignore`: Excludes sensitive files from the build.
+  - `backend/Dockerfile`: Builds the FastAPI image.
+  - `frontend/Dockerfile`: Builds the Vue.js image.
+  - `requirements.txt`: Lists Python dependencies.
+
+#### 4. Create `.dockerignore` Files
+- Prevent sensitive files (e.g., `.env`) from being copied into images.
+
+#### 5. Build and Run the Application
+- Navigate to the project directory:
+  ```VS CODE
+  cd "D:\VERSION2AUTHETICATOR"
+  ```
+- Build the images:
+  ```VS CODE
+  docker-compose build
+  ```
+- Start the containers:
+  ```VS CODE
+  docker-compose up -d
+  ```
+- Verify container status:
+  ```VS CODE
+  docker-compose ps
+  ```
+  - Expected: All three containers (`VERSION2AUTHETICATOR-backend`, `VERSION2AUTHETICATOR-db`, `VERSION2AUTHETICATOR-frontend`) show `Up`.
+
+#### 6. Test the Application
+- **Frontend**: Open `http://localhost:8080` in a browser to verify the UI.
+- **Backend**: Access `http://localhost:8000/docs` for the API documentation.
+- **Registration/Login**: Test user registration and login with 2FA.
+- **Data Verification**: Connect to MySQL:
+  ```VS CODE
+  docker-compose exec db mysql -u app_user -psecurepassword123 2fa_db
+  ```
+  - Run: `SELECT * FROM users;` to view stored data.
+
+#### 7. Troubleshoot Common Issues
+- **Container Not Starting**:
+  - Check logs: `docker-compose logs <service>` (e.g., `backend`).
+  - Ensure dependencies (e.g., `python-multipart`) are in `requirements.txt`.
+- **Connection Refused**:
+  - Verify `DB_HOST` is `db` and MySQL is ready .
+- **Docker Desktop Empty**:
+  - Restart Docker Desktop .
+  
+
+#### 8. Push to Docker Hub 
+- Log in:
+  ```VS CODE
+  docker login
+  ```
+- Tag images:
+  ```VS CODE
+  docker tag VERSION2AUTHETICATOR_backend:latest yourusername/VERSION2AUTHETICATOR-backend:latest
+  docker tag VERSION2AUTHETICATOR_frontend:latest yourusername/VERSION2AUTHETICATOR-frontend:latest
+  ```
+- Push images:
+  ```VS CODE
+  docker push yourusername/VERSION2AUTHETICATOR-backend:latest
+  docker push yourusername/VERSION2AUTHETICATOR-frontend:latest
+
+
+
+#### `docker-compose.yml`
+
+``` yaml
+services:
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+    
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY}
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  dbdata:
+```
+
+#### `backend/Dockerfile`
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+#### `frontend/Dockerfile`
+```dockerfile
+# Build stage
+FROM node:18 AS build
+
+WORKDIR /app
+
+# Copy package files and install all dependencies (including dev deps for build)
+COPY package.json package-lock.json ./
+RUN npm ci  
+# Copy source code and build
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built assets
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose port
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+
+### Conclusion
+This process dockerizes the 2FA application, ensuring a reproducible setup. The data persists in the `dbdata` volume, and the application is accessible at `http://localhost:8080` (frontend) and `http://localhost:8000` (backend API).
+
+## Dockerizing the setup of an application
+- [YOUTUBE](https://www.youtube.com/watch?v=tV1pKMJDFZY)
 
 ## Use of AI Tools
 - [GROK](https://grok.com/)
-- [CHATGPT](https://chatgpt.com)
+- [CHATGPT](https://chatgpt.com/)
