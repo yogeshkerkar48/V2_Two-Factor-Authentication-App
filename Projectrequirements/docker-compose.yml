@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata10:/var/lib/mysql
+    
+
+  backend:
+    image: yogesh201/version2autheticator-backend:latest    
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME} 
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY}                    
+    depends_on:
+      - db
+
+  frontend:
+    image: yogesh201/version2autheticator-frontend:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend  
+
+volumes:
+  dbdata10:
